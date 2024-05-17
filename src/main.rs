@@ -1,5 +1,4 @@
-
-
+use std::collections::HashMap;
 
 #[derive(Debug)]
 enum Expression {
@@ -9,6 +8,18 @@ enum Expression {
     Subtraction(Box<Expression>, Box<Expression>),
     Multiplication(Box<Expression>, Box<Expression>),
     // Add more operations as needed
+}
+
+impl Expression {
+    fn evaluate(&self, variable_values: &HashMap<char, i32>) -> i32 {
+        match self {
+            Expression::Variable(c) => *variable_values.get(c).unwrap_or(&0),
+            Expression::Constant(value) => *value,
+            Expression::Addition(lhs, rhs) => lhs.evaluate(variable_values) + rhs.evaluate(variable_values),
+            Expression::Subtraction(lhs, rhs) => lhs.evaluate(variable_values) - rhs.evaluate(variable_values),
+            Expression::Multiplication(lhs, rhs) => lhs.evaluate(variable_values) * rhs.evaluate(variable_values),
+        }
+    }
 }
 
 // Token representing a part of the input expression
@@ -170,13 +181,46 @@ fn tokenize(input: &str) -> Vec<Token> {
     tokens
 }
 
+fn brute_force_solver(equation: &Expression, variable_names: &[char], target: i32) {
+    let mut variable_values: HashMap<char, i32> = HashMap::new();
+
+    // Generate all possible combinations of variable values
+    let max_value = 20; // You can adjust this based on your problem
+    for value in 0..max_value {
+        for &variable in variable_names {
+            variable_values.insert(variable, value);
+        }
+
+        // Evaluate the equation with the current variable values
+        let result = equation.evaluate(&variable_values);
+
+        // Check if the result matches the target
+        if result == target {
+            println!("Solution found: {:?}", variable_values);
+            return;
+        }
+    }
+
+    println!("No solution found.");
+}
+
 fn main() {
+    // Exapmle: 13a + 7b + 1 = 245
     let input = "13 * a + 7 * b + 1";
     let tokens = tokenize(input);
     let mut parser = Parser::new(&tokens);
 
     if let Some(expression) = parser.parse_expression() {
         println!("Parsed Expression: {:?}", expression);
+        
+        // Example variable names (modify as needed)
+        let variable_names = vec!['a', 'b'];
+        
+        // Target value (modify as needed)
+        let target = 245;
+        
+        // Solve using brute force
+        brute_force_solver(&expression, &variable_names, target);
     } else {
         println!("Failed to parse expression.");
     }
