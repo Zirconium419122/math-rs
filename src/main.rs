@@ -181,26 +181,47 @@ fn tokenize(input: &str) -> Vec<Token> {
     tokens
 }
 
-fn brute_force_solver(equation: &Expression, variable_names: &[char], target: i32) {
-    let mut variable_values: HashMap<char, i32> = HashMap::new();
+fn generate_combinations(variables: &[char], max_value: i32) -> Vec<HashMap<char, i32>> {
+    let mut combinations = Vec::new();
+    let mut current_combination = HashMap::new();
 
-    // Generate all possible combinations of variable values
-    let max_value = 20; // You can adjust this based on your problem
-    for value in 0..max_value {
-        for &variable in variable_names {
-            variable_values.insert(variable, value);
+    for variable in variables {
+        current_combination.insert(*variable, 0);
+    }
+
+    loop {
+        combinations.push(current_combination.clone());
+
+        let mut carry = 1;
+        
+        for variable in variables {
+            if let Some(value) = current_combination.get_mut(variable) {
+                *value += carry;
+                if *value > max_value {
+                    *value = 0;
+                } else {
+                    carry = 0;
+                    break;
+                }
+            }
         }
+        if carry > 0 {
+            break;
+        }
+    }
+    combinations
+}
 
-        // Evaluate the equation with the current variable values
+fn brute_force_solver(equation: &Expression, variable_names: &[char], target: i32) {
+    let max_value = 20;
+    let combinations = generate_combinations(variable_names, max_value);
+    for variable_values in combinations {
         let result = equation.evaluate(&variable_values);
-
-        // Check if the result matches the target
         if result == target {
             println!("Solution found: {:?}", variable_values);
             return;
         }
     }
-
     println!("No solution found.");
 }
 
