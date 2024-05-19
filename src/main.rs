@@ -193,10 +193,11 @@ fn generate_combinations(variables: &[char], max_value: i32) -> Vec<HashMap<char
         combinations.push(current_combination.clone());
 
         let mut carry = 1;
-        
+
         for variable in variables {
             if let Some(value) = current_combination.get_mut(variable) {
                 *value += carry;
+                
                 if *value > max_value {
                     *value = 0;
                 } else {
@@ -205,6 +206,10 @@ fn generate_combinations(variables: &[char], max_value: i32) -> Vec<HashMap<char
                 }
             }
         }
+        
+        // If carry is bigger then 0 after iterating through all variables,
+        // all variables have rolled over to 0 and all combinations generated.
+        // Thus, the loop breaks.
         if carry > 0 {
             break;
         }
@@ -215,13 +220,16 @@ fn generate_combinations(variables: &[char], max_value: i32) -> Vec<HashMap<char
 fn brute_force_solver(equation: &Expression, variable_names: &[char], target: i32) {
     let max_value = 20;
     let combinations = generate_combinations(variable_names, max_value);
+
     for variable_values in combinations {
         let result = equation.evaluate(&variable_values);
+
         if result == target {
             println!("Solution found: {:?}", variable_values);
             return;
         }
     }
+
     println!("No solution found.");
 }
 
