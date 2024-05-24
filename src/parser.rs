@@ -7,11 +7,8 @@ pub struct Parser<'a> {
 }
 
 impl<'a> Parser<'a> {
-    pub fn new(tokens: & [Token]) -> Parser {
-        Parser {
-            tokens,
-            current: 0,
-        }
+    pub fn new(tokens: &[Token]) -> Parser {
+        Parser { tokens, current: 0 }
     }
 
     pub fn parse_expression(&mut self) -> Option<Expression> {
@@ -26,12 +23,18 @@ impl<'a> Parser<'a> {
                 Token::Plus => {
                     self.consume(); // Consume the operator
                     let right = self.parse_multiplication();
-                    left = Some(Expression::Addition(Box::new(left.unwrap()), Box::new(right.unwrap())));
+                    left = Some(Expression::Addition(
+                        Box::new(left.unwrap()),
+                        Box::new(right.unwrap()),
+                    ));
                 }
                 Token::Minus => {
                     self.consume(); // Consume the operator
                     let right = self.parse_multiplication();
-                    left = Some(Expression::Subtraction(Box::new(left.unwrap()), Box::new(right.unwrap())));
+                    left = Some(Expression::Subtraction(
+                        Box::new(left.unwrap()),
+                        Box::new(right.unwrap()),
+                    ));
                 }
                 _ => break,
             }
@@ -48,7 +51,10 @@ impl<'a> Parser<'a> {
                 Token::Asterisk => {
                     self.consume(); // Consume the operator
                     let right = self.parse_primary();
-                    left = Some(Expression::Multiplication(Box::new(left.unwrap()), Box::new(right.unwrap())));
+                    left = Some(Expression::Multiplication(
+                        Box::new(left.unwrap()),
+                        Box::new(right.unwrap()),
+                    ));
                 }
                 _ => break,
             }
