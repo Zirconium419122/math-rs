@@ -1,54 +1,87 @@
-use crate::{Token, Expression};
+use crate::{Expression, Parser, Token};
 use std::collections::HashMap;
 
-pub fn generate_combinations(variables: &[Token], max_value: i32) -> Vec<HashMap<char, i32>> {
-    let mut combinations = Vec::new();
-    let mut current_combination = HashMap::new();
+pub trait Solver<T> {
+    fn solve(&self, input: T) -> Result<(), String>;
+}
 
-    let variable_names: Vec<char> = variables.into_iter().filter_map(|t| t.get_variable_char()).collect();
+pub struct BruteForce {
+    equation: Expression,
+    tokens: Vec<Token>,
+    max_value: i32,
+    target: i32,
+}
 
-    for variable_name in &variable_names {
-        current_combination.insert(*variable_name, 0);
+impl BruteForce {
+    pub fn new(tokens: Vec<Token>, max_value: i32, target: i32) -> Result<Self, String> {
+        let mut parser = Parser::new(&tokens);
+
+        match parser.parse_expression() {
+            Some(expression) => {
+                println!("Parsed Expression: {:?}", expression);
+
+                Ok(Self {
+                    equation: expression,
+                    tokens,
+                    max_value,
+                    target,
+                })
+            },
+            None => Err("Failed to parse expression.".to_string()),
+        }
     }
 
-    loop {
-        combinations.push(current_combination.clone());
-
-        let mut carry = 1;
-
+    fn generate_combinations(&self) -> Vec<HashMap<char, i32>> {
+        let mut combinations = Vec::new();
+        let mut current_combination = HashMap::new();
+    
+        let variable_names: Vec<char> = self.tokens.clone().into_iter().filter_map(|t| t.get_variable_char()).collect();
+    
         for variable_name in &variable_names {
-            if let Some(value) = current_combination.get_mut(variable_name) {
-                *value += carry;
-
-                if *value > max_value {
-                    *value = 0;
-                } else {
-                    carry = 0;
-                    break;
+            current_combination.insert(*variable_name, 0);
+        }
+    
+        loop {
+            combinations.push(current_combination.clone());
+    
+            let mut carry = 1;
+    
+            for variable_name in &variable_names {
+                if let Some(value) = current_combination.get_mut(variable_name) {
+                    *value += carry;
+    
+                    if *value > self.max_value {
+                        *value = 0;
+                    } else {
+                        carry = 0;
+                        break;
+                    }
                 }
+            }
+    
+            if carry > 0 {
+                break;
+            }
+        }
+    
+        combinations
+    }
+}
+
+impl Solver<&str> for BruteForce {
+    fn solve(&self, _input: &str) -> Result<(), String> {
+        let combinations = self.generate_combinations();
+
+        for variable_values in combinations {
+            let result = self.equation.evaluate(&variable_values);
+
+            if result == self.target {
+                println!("Solution found: {:?}", variable_values);
+                
+                return Ok(());
             }
         }
 
-        if carry > 0 {
-            break;
-        }
+        Err("No solution found.".to_string())
     }
-
-    combinations
-}
-
-pub fn brute_force_solver(equation: &Expression, variables: &[Token], target: i32) {
-    let max_value = 20;
-    let combinations = generate_combinations(variables, max_value);
-
-    for variable_values in combinations {
-        let result = equation.evaluate(&variable_values);
-
-        if result == target {
-            println!("Solution found: {:?}", variable_values);
-            return;
-        }
-    }
-
-    println!("No solution found.");
 }
