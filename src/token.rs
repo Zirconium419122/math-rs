@@ -46,7 +46,6 @@ pub fn tokenize(input: &str) -> Vec<Token> {
                 iter.next();
             }
             _ => {
-                // Ignore other characters
                 iter.next();
             }
         }
@@ -68,10 +67,6 @@ pub enum Token {
 }
 
 impl Token {
-    pub fn is_variable(&self) -> bool {
-        matches!(self, Token::Variable(_))
-    }
-
     pub fn get_variable_char(&self) -> Option<char> {
         if let Token::Variable(c) = self {
             Some(*c)
