@@ -1,5 +1,5 @@
 use crate::expression::Expression;
-use crate::Token;
+use crate::token::Token;
 
 pub struct Parser<'a> {
     tokens: &'a [Token],

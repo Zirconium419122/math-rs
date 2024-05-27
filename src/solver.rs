@@ -1,5 +1,8 @@
-use crate::{Expression, Parser, Token};
 use std::collections::HashMap;
+
+use crate::token::Token;
+use crate::parser::Parser;
+use crate::expression::Expression;
 
 pub trait Solver<T> {
     fn solve(&self, input: T) -> Result<(), String>;
