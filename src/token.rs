@@ -8,6 +8,7 @@ pub enum Token {
     Asterisk,
     OpenParenthesis,
     CloseParenthesis,
+    Equal,
 }
 
 impl Token {
@@ -63,6 +64,10 @@ pub fn tokenize(input: &str) -> Vec<Token> {
             }
             ')' => {
                 tokens.push(Token::CloseParenthesis);
+                iter.next();
+            }
+            '=' => {
+                tokens.push(Token::Equal);
                 iter.next();
             }
             _ => {

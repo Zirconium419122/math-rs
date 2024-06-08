@@ -10,24 +10,24 @@ pub trait Solver<T> {
 
 pub struct BruteForce {
     equation: Expression,
+    target_expression: Expression,
     tokens: Vec<Token>,
     max_value: i32,
-    target: i32,
 }
 
 impl BruteForce {
-    pub fn new(tokens: Vec<Token>, max_value: i32, target: i32) -> Result<Self, String> {
+    pub fn new(tokens: Vec<Token>, max_value: i32) -> Result<Self, String> {
         let mut parser = Parser::new(&tokens);
 
-        match parser.parse_expression() {
-            Some(expression) => {
-                println!("Parsed Expression: {:?}", expression);
+        match parser.parse_equation() {
+            Some((left, right)) => {
+                println!("Parsed Equation: {:?} = {:?}", left, right);
 
                 Ok(Self {
-                    equation: expression,
+                    equation: left,
+                    target_expression: right,
                     tokens,
                     max_value,
-                    target,
                 })
             },
             None => Err("Failed to parse expression.".to_string()),
@@ -76,9 +76,10 @@ impl Solver<&str> for BruteForce {
         let combinations = self.generate_combinations();
 
         for variable_values in combinations {
-            let result = self.equation.evaluate(&variable_values);
+            let left_result = self.equation.evaluate(&variable_values);
+            let right_result = self.target_expression.evaluate(&variable_values);
 
-            if result == self.target {
+            if left_result == right_result {
                 println!("Solution found: {:?}", variable_values);
                 
                 return Ok(());

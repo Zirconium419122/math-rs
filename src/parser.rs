@@ -11,6 +11,18 @@ impl<'a> Parser<'a> {
         Parser { tokens, current: 0 }
     }
 
+    pub fn parse_equation(&mut self) -> Option<(Expression, Expression)> {
+        let left_side = self.parse_expression()?;
+
+        if self.peek() == Some(&Token::Equal) {
+            self.consume(); // Consume the equal sign
+            let right_side = self.parse_expression()?;
+            Some((left_side, right_side))
+        } else {
+            None
+        }
+    }
+
     pub fn parse_expression(&mut self) -> Option<Expression> {
         self.parse_addition()
     }
