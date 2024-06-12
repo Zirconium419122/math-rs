@@ -1,11 +1,12 @@
 use std::collections::HashMap;
 
-use crate::token::Token;
+use crate::token::{tokenize, Token};
 use crate::parser::Parser;
 use crate::expression::Expression;
 
 pub trait Solver<T> {
-    fn solve(&self, input: T) -> Result<(), String>;
+    fn solve(input: T) -> Result<(), String>;
+    fn solve_from_self(&self) -> Result<(), String>;
 }
 
 pub struct BruteForce {
@@ -72,7 +73,28 @@ impl BruteForce {
 }
 
 impl Solver<&str> for BruteForce {
-    fn solve(&self, _input: &str) -> Result<(), String> {
+    fn solve(input: &str) -> Result<(), String> {
+        let tokens = tokenize(input);
+
+        let solver = BruteForce::new(tokens, 20).unwrap();
+
+        let combinations = solver.generate_combinations();
+
+        for variable_values in combinations {
+            let left_result = solver.equation.evaluate(&variable_values);
+            let right_result = solver.target_expression.evaluate(&variable_values);
+
+            if left_result == right_result {
+                println!("Solution found: {:?}", variable_values);
+                
+                return Ok(());
+            }
+        }
+
+        Err("No solution found.".to_string())
+    }
+    
+    fn solve_from_self(&self) -> Result<(), String> {
         let combinations = self.generate_combinations();
 
         for variable_values in combinations {
