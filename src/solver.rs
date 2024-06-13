@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use crate::token::{tokenize, Token};
-use crate::parser::Parser;
 use crate::expression::Expression;
+use crate::parser::Parser;
+use crate::token::{tokenize, Token};
 
 pub trait Solver<T> {
     fn solve(input: T) -> Result<(), String>;
@@ -38,22 +38,27 @@ impl BruteForce {
     fn generate_combinations(&self) -> Vec<HashMap<char, i32>> {
         let mut combinations = Vec::new();
         let mut current_combination = HashMap::new();
-    
-        let variable_names: Vec<char> = self.tokens.clone().into_iter().filter_map(|t| t.get_variable_char()).collect();
-    
+
+        let variable_names: Vec<char> = self
+            .tokens
+            .clone()
+            .into_iter()
+            .filter_map(|t| t.get_variable_char())
+            .collect();
+
         for variable_name in &variable_names {
             current_combination.insert(*variable_name, 0);
         }
-    
+
         loop {
             combinations.push(current_combination.clone());
-    
+
             let mut carry = 1;
-    
+
             for variable_name in &variable_names {
                 if let Some(value) = current_combination.get_mut(variable_name) {
                     *value += carry;
-    
+
                     if *value > self.max_value {
                         *value = 0;
                     } else {
@@ -62,12 +67,12 @@ impl BruteForce {
                     }
                 }
             }
-    
+
             if carry > 0 {
                 break;
             }
         }
-    
+
         combinations
     }
 }
@@ -86,14 +91,14 @@ impl Solver<&str> for BruteForce {
 
             if left_result == right_result {
                 println!("Solution found: {:?}", variable_values);
-                
+
                 return Ok(());
             }
         }
 
         Err("No solution found.".to_string())
     }
-    
+
     fn solve_from_self(&self) -> Result<(), String> {
         let combinations = self.generate_combinations();
 
@@ -103,7 +108,7 @@ impl Solver<&str> for BruteForce {
 
             if left_result == right_result {
                 println!("Solution found: {:?}", variable_values);
-                
+
                 return Ok(());
             }
         }
