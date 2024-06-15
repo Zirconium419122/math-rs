@@ -46,9 +46,12 @@ impl BruteForce {
             .filter_map(|t| t.get_variable_char())
             .collect();
 
-        for variable_name in &variable_names {
-            current_combination.insert(*variable_name, 0);
-        }
+        let _ = variable_names
+            .clone()
+            .into_iter()
+            .map(|variable_name| {
+                current_combination.insert(variable_name, 0);
+            });
 
         loop {
             combinations.push(current_combination.clone());
