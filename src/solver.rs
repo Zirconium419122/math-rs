@@ -41,18 +41,16 @@ impl BruteForce {
 
         let variable_names: Vec<char> = self
             .tokens
-            .clone()
-            .into_iter()
+            .iter()
             .filter_map(|t| t.get_variable_char())
             .collect();
 
         let _ = variable_names
-            .clone()
-            .into_iter()
-            .map(|variable_name| {
-                current_combination.insert(variable_name, 0);
+            .iter()
+            .for_each(|variable_name| {
+                current_combination.insert(*variable_name, 0);
             });
-
+            
         loop {
             combinations.push(current_combination.clone());
 
