@@ -86,6 +86,8 @@ impl Solver<&str> for BruteForce {
 
         let combinations = solver.generate_combinations();
 
+        let mut solution_found = false;
+
         for variable_values in combinations {
             let left_result = solver.equation.evaluate(&variable_values);
             let right_result = solver.target_expression.evaluate(&variable_values);
@@ -93,8 +95,12 @@ impl Solver<&str> for BruteForce {
             if left_result == right_result {
                 println!("Solution found: {:?}", variable_values);
 
-                return Ok(());
+                solution_found = true;
             }
+        }
+
+        if solution_found {
+            return Ok(());
         }
 
         Err("No solution found.".to_string())
@@ -103,6 +109,8 @@ impl Solver<&str> for BruteForce {
     fn solve_from_self(&self) -> Result<(), String> {
         let combinations = self.generate_combinations();
 
+        let mut solution_found = false;
+
         for variable_values in combinations {
             let left_result = self.equation.evaluate(&variable_values);
             let right_result = self.target_expression.evaluate(&variable_values);
@@ -110,8 +118,12 @@ impl Solver<&str> for BruteForce {
             if left_result == right_result {
                 println!("Solution found: {:?}", variable_values);
 
-                return Ok(());
+                solution_found = true;
             }
+        }
+
+        if solution_found {
+            return Ok(());
         }
 
         Err("No solution found.".to_string())
