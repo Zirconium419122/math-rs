@@ -4,6 +4,8 @@ use crate::expression::Expression;
 use crate::parser::Parser;
 use crate::token::{tokenize, Token};
 
+pub type VariableHashMap = HashMap<char, i32>;
+
 pub trait Solver<T> {
     fn solve(input: T) -> Result<(), String>;
     fn solve_from_self(&self) -> Result<(), String>;
@@ -35,9 +37,9 @@ impl BruteForce {
         }
     }
 
-    fn generate_combinations(&self) -> Vec<HashMap<char, i32>> {
+    fn generate_combinations(&self) -> Vec<VariableHashMap> {
         let mut combinations = Vec::new();
-        let mut current_combination = HashMap::new();
+        let mut current_combination = VariableHashMap::new();
 
         let variable_names: Vec<char> = self
             .tokens

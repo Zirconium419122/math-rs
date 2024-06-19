@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use crate::solver::VariableHashMap;
 
 #[derive(Debug)]
 pub enum Expression {
@@ -11,7 +11,7 @@ pub enum Expression {
 }
 
 impl Expression {
-    pub fn evaluate(&self, variable_values: &HashMap<char, i32>) -> i32 {
+    pub fn evaluate(&self, variable_values: &VariableHashMap) -> i32 {
         match self {
             Expression::Variable(c) => *variable_values.get(c).unwrap_or(&0),
             Expression::Constant(value) => *value,
