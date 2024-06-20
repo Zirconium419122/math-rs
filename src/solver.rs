@@ -11,15 +11,15 @@ pub trait Solver<T> {
     fn solve_from_self(&self) -> Result<(), String>;
 }
 
-pub struct BruteForce {
+pub struct BruteForce<'a> {
     equation: Expression,
     target_expression: Expression,
-    tokens: Vec<Token>,
+    tokens: &'a [Token],
     max_value: i32,
 }
 
-impl BruteForce {
-    pub fn new(tokens: Vec<Token>, max_value: i32) -> Result<Self, String> {
+impl<'a> BruteForce<'a> {
+    pub fn new(tokens: &'a [Token], max_value: i32) -> Result<Self, String> {
         let mut parser = Parser::new(&tokens);
 
         match parser.parse_equation() {
@@ -47,12 +47,10 @@ impl BruteForce {
             .filter_map(|t| t.get_variable_char())
             .collect();
 
-        let _ = variable_names
-            .iter()
-            .for_each(|variable_name| {
-                current_combination.insert(*variable_name, 0);
-            });
-            
+        let _ = variable_names.iter().for_each(|variable_name| {
+            current_combination.insert(*variable_name, 0);
+        });
+
         loop {
             combinations.push(current_combination.clone());
 
@@ -80,11 +78,11 @@ impl BruteForce {
     }
 }
 
-impl Solver<&str> for BruteForce {
+impl<'a> Solver<&str> for BruteForce<'a> {
     fn solve(input: &str) -> Result<(), String> {
         let tokens = tokenize(input);
 
-        let solver = BruteForce::new(tokens, 20).unwrap();
+        let solver = BruteForce::new(&tokens, 20).unwrap();
 
         let combinations = solver.generate_combinations();
 

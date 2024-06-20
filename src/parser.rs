@@ -7,7 +7,7 @@ pub struct Parser<'a> {
 }
 
 impl<'a> Parser<'a> {
-    pub fn new(tokens: &[Token]) -> Parser {
+    pub fn new(tokens: &'a [Token]) -> Parser {
         Parser { tokens, current: 0 }
     }
 
@@ -23,7 +23,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    pub fn parse_expression(&mut self) -> Option<Expression> {
+    fn parse_expression(&mut self) -> Option<Expression> {
         self.parse_addition()
     }
 
