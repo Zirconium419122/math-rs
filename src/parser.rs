@@ -83,7 +83,15 @@ impl<'a> Parser<'a> {
             }
             Some(Token::Constant(value)) => {
                 self.consume(); // Consume the constant token
-                Some(Expression::Constant(value))
+                if let Some(Token::Variable(c)) = self.peek().cloned() {
+                    self.consume(); // Consume the variable token
+                    Some(Expression::Multiplication(
+                        Box::new(Expression::Constant(value)),
+                        Box::new(Expression::Variable(c)),
+                    ))
+                } else {
+                    Some(Expression::Constant(value))
+                }
             }
             Some(Token::OpenParenthesis) => {
                 self.consume(); // Consume the opening parenthesis
