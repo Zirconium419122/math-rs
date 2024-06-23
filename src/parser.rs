@@ -79,7 +79,15 @@ impl<'a> Parser<'a> {
         match self.peek().cloned() {
             Some(Token::Variable(c)) => {
                 self.consume(); // Consume the variable token
-                Some(Expression::Variable(c))
+                if let Some(Token::Constant(value)) = self.peek().cloned() {
+                    self.consume(); // Consume the constant token
+                    Some(Expression::Multiplication(
+                        Box::new(Expression::Variable(c)),
+                        Box::new(Expression::Constant(value)),
+                    ))
+                } else {
+                    Some(Expression::Variable(c))
+                }
             }
             Some(Token::Constant(value)) => {
                 self.consume(); // Consume the constant token
