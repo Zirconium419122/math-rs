@@ -4,22 +4,20 @@ use crate::expression::Expression;
 use crate::parser::Parser;
 use crate::token::{tokenize, Token};
 
-pub type VariableHashMap = HashMap<char, i32>;
-
 pub trait Solver<T> {
     fn solve(input: T) -> Result<(), String>;
     fn solve_from_self(&self) -> Result<(), String>;
 }
 
-pub struct BruteForce<'a> {
-    equation: Expression,
-    target_expression: Expression,
-    tokens: &'a [Token],
-    max_value: i32,
+pub struct BruteForce<'a, T> {
+    equation: Expression<T>,
+    target_expression: Expression<T>,
+    tokens: &'a [Token<T>],
+    max_value: T,
 }
 
-impl<'a> BruteForce<'a> {
-    pub fn new(tokens: &'a [Token], max_value: i32) -> Result<Self, String> {
+impl<'a> BruteForce<'a, i32> {
+    pub fn new(tokens: &'a [Token<i32>], max_value: i32) -> Result<Self, String> {
         let mut parser = Parser::new(&tokens);
 
         match parser.parse_equation() {
@@ -37,9 +35,9 @@ impl<'a> BruteForce<'a> {
         }
     }
 
-    fn generate_combinations(&self) -> Vec<VariableHashMap> {
+    fn generate_combinations(&self) -> Vec<HashMap<char, i32>> {
         let mut combinations = Vec::new();
-        let mut current_combination = VariableHashMap::new();
+        let mut current_combination = HashMap::<char, i32>::new();
 
         let variable_names: Vec<char> = self
             .tokens
@@ -78,7 +76,7 @@ impl<'a> BruteForce<'a> {
     }
 }
 
-impl<'a> Solver<&str> for BruteForce<'a> {
+impl<'a> Solver<&str> for BruteForce<'a, i32> {
     fn solve(input: &str) -> Result<(), String> {
         let tokens = tokenize(input);
 

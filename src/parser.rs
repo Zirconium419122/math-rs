@@ -1,17 +1,17 @@
 use crate::expression::Expression;
 use crate::token::Token;
 
-pub struct Parser<'a> {
-    tokens: &'a [Token],
+pub struct Parser<'a, T> {
+    tokens: &'a [Token<T>],
     current: usize,
 }
 
-impl<'a> Parser<'a> {
-    pub fn new(tokens: &'a [Token]) -> Parser {
+impl<'a, T: std::cmp::PartialEq + Clone> Parser<'a, T> {
+    pub fn new(tokens: &'a [Token<T>]) -> Parser<T> {
         Parser { tokens, current: 0 }
     }
 
-    pub fn parse_equation(&mut self) -> Option<(Expression, Expression)> {
+    pub fn parse_equation(&mut self) -> Option<(Expression<T>, Expression<T>)> {
         let left_side = self.parse_expression()?;
 
         if self.peek() == Some(&Token::Equal) {
@@ -23,11 +23,11 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn parse_expression(&mut self) -> Option<Expression> {
+    fn parse_expression(&mut self) -> Option<Expression<T>> {
         self.parse_addition()
     }
 
-    fn parse_addition(&mut self) -> Option<Expression> {
+    fn parse_addition(&mut self) -> Option<Expression<T>> {
         let mut left = self.parse_multiplication();
 
         while let Some(operator) = self.peek() {
@@ -55,7 +55,7 @@ impl<'a> Parser<'a> {
         left
     }
 
-    fn parse_multiplication(&mut self) -> Option<Expression> {
+    fn parse_multiplication(&mut self) -> Option<Expression<T>> {
         let mut left = self.parse_primary();
 
         while let Some(operator) = self.peek() {
@@ -75,7 +75,7 @@ impl<'a> Parser<'a> {
         left
     }
 
-    fn parse_primary(&mut self) -> Option<Expression> {
+    fn parse_primary(&mut self) -> Option<Expression<T>> {
         match self.peek().cloned() {
             Some(Token::Variable(c)) => {
                 self.consume(); // Consume the variable token
@@ -111,7 +111,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn peek(&self) -> Option<&Token> {
+    fn peek(&self) -> Option<&Token<T>> {
         self.tokens.get(self.current)
     }
 
@@ -119,7 +119,7 @@ impl<'a> Parser<'a> {
         self.current += 1;
     }
 
-    fn consume_expect(&mut self, expected: Token) -> Option<()> {
+    fn consume_expect(&mut self, expected: Token<T>) -> Option<()> {
         if self.peek() == Some(&expected) {
             self.consume();
             Some(())

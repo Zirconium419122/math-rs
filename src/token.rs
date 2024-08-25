@@ -1,8 +1,8 @@
 // Token representing a part of the input expression
 #[derive(Debug, Clone, PartialEq)]
-pub enum Token {
+pub enum Token<T> {
     Variable(char),
-    Constant(i32),
+    Constant(T),
     Plus,
     Minus,
     Asterisk,
@@ -11,7 +11,7 @@ pub enum Token {
     Equal,
 }
 
-impl Token {
+impl<T> Token<T> {
     pub fn get_variable_char(&self) -> Option<char> {
         if let Token::Variable(c) = self {
             Some(*c)
@@ -22,7 +22,7 @@ impl Token {
 }
 
 // Tokenize the input string
-pub fn tokenize(input: &str) -> Vec<Token> {
+pub fn tokenize<T: std::ops::Add<i32> + std::ops::Mul<i32> + From<i32>>(input: &str) -> Vec<Token<T>> {
     let mut tokens = Vec::new();
     let mut iter = input.chars().peekable();
 
@@ -33,7 +33,7 @@ pub fn tokenize(input: &str) -> Vec<Token> {
                 iter.next();
             }
             '0'..='9' => {
-                let mut value = 0;
+                let mut value: i32 = 0;
 
                 while let Some(&digit) = iter.peek() {
                     if let Some(d) = digit.to_digit(10) {
@@ -44,7 +44,7 @@ pub fn tokenize(input: &str) -> Vec<Token> {
                     }
                 }
 
-                tokens.push(Token::Constant(value));
+                tokens.push(Token::Constant(T::from(value)));
             }
             '+' => {
                 tokens.push(Token::Plus);
