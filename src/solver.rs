@@ -5,36 +5,19 @@ use crate::parser::Parser;
 use crate::token::{tokenize, Token};
 
 pub trait Solver<T> {
+    fn new(input: T) -> Result<Self, String> where Self: Sized;
     fn solve(input: T) -> Result<(), String>;
     fn solve_from_self(&self) -> Result<(), String>;
 }
 
-pub struct BruteForce<'a, T> {
+pub struct BruteForce<T> {
     equation: Expression<T>,
     target_expression: Expression<T>,
-    tokens: &'a [Token<T>],
     max_value: T,
+    tokens: Vec<Token<T>>,
 }
 
-impl<'a> BruteForce<'a, i32> {
-    pub fn new(tokens: &'a [Token<i32>], max_value: i32) -> Result<Self, String> {
-        let mut parser = Parser::new(&tokens);
-
-        match parser.parse_equation() {
-            Some((left, right)) => {
-                println!("Parsed Equation: {:?} = {:?}", left, right);
-
-                Ok(Self {
-                    equation: left,
-                    target_expression: right,
-                    tokens,
-                    max_value,
-                })
-            },
-            None => Err("Failed to parse expression.".to_string()),
-        }
-    }
-
+impl BruteForce<i32> {
     fn generate_combinations(&self) -> Vec<HashMap<char, i32>> {
         let mut combinations = Vec::new();
         let mut current_combination = HashMap::<char, i32>::new();
@@ -76,11 +59,29 @@ impl<'a> BruteForce<'a, i32> {
     }
 }
 
-impl<'a> Solver<&str> for BruteForce<'a, i32> {
-    fn solve(input: &str) -> Result<(), String> {
+impl Solver<&str> for BruteForce<i32> {
+    fn new(input: &str) -> Result<Self, String> {
         let tokens = tokenize(input);
 
-        let solver = BruteForce::new(&tokens, 20).unwrap();
+        let mut parser = Parser::new(&tokens);
+
+        match parser.parse_equation() {
+            Some((left, right)) => {
+                println!("Parsed Equation: {:?} = {:?}", left, right);
+
+                Ok(Self {
+                    equation: left,
+                    target_expression: right,
+                    max_value: 20,
+                    tokens,
+                })
+            },
+            None => Err("Failed to parse expression.".to_string()),
+        }
+    }
+
+    fn solve(input: &str) -> Result<(), String> {
+        let solver = BruteForce::new(input).unwrap();
 
         let combinations = solver.generate_combinations();
 
