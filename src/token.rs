@@ -6,6 +6,7 @@ pub enum Token<T> {
     Plus,
     Minus,
     Asterisk,
+    Slash,
     OpenParenthesis,
     CloseParenthesis,
     Equal,
@@ -56,6 +57,10 @@ pub fn tokenize<T: std::ops::Add<i32> + std::ops::Mul<i32> + From<i32>>(input: &
             }
             '*' => {
                 tokens.push(Token::Asterisk);
+                iter.next();
+            }
+            '/' => {
+                tokens.push(Token::Slash);
                 iter.next();
             }
             '(' => {

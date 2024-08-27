@@ -68,6 +68,14 @@ impl<'a, T: std::cmp::PartialEq + Clone> Parser<'a, T> {
                         Box::new(right.unwrap()),
                     ));
                 }
+                Token::Slash  => {
+                    self.consume(); // Consume the operator
+                    let right = self.parse_primary();
+                    left = Some(Expression::Division(
+                        Box::new(left.unwrap()),
+                        Box::new(right.unwrap()),
+                    ));
+                }
                 _ => break,
             }
         }
