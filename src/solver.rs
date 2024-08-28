@@ -28,9 +28,9 @@ impl BruteForce<i32> {
             .filter_map(|t| t.get_variable_char())
             .collect();
 
-        let _ = variable_names.iter().for_each(|variable_name| {
-            current_combination.insert(*variable_name, 0);
-        });
+        for &variable_name in &variable_names {
+            current_combination.insert(variable_name, 0);
+        };
 
         loop {
             combinations.push(current_combination.clone());
@@ -82,32 +82,11 @@ impl Solver<&str> for BruteForce<i32> {
 
     fn solve(input: &str) -> Result<(), String> {
         let solver = BruteForce::new(input).unwrap();
-
-        let combinations = solver.generate_combinations();
-
-        let mut solution_found = false;
-
-        for variable_values in combinations {
-            let left_result = solver.equation.evaluate(&variable_values);
-            let right_result = solver.target_expression.evaluate(&variable_values);
-
-            if left_result == right_result {
-                println!("Solution found: {:?}", variable_values);
-
-                solution_found = true;
-            }
-        }
-
-        if solution_found {
-            return Ok(());
-        }
-
-        Err("No solution found.".to_string())
+        solver.solve_from_self()
     }
 
     fn solve_from_self(&self) -> Result<(), String> {
         let combinations = self.generate_combinations();
-
         let mut solution_found = false;
 
         for variable_values in combinations {
@@ -116,7 +95,6 @@ impl Solver<&str> for BruteForce<i32> {
 
             if left_result == right_result {
                 println!("Solution found: {:?}", variable_values);
-
                 solution_found = true;
             }
         }
