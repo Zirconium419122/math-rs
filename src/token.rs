@@ -23,7 +23,7 @@ impl<T> Token<T> {
 }
 
 // Tokenize the input string
-pub fn tokenize<T: std::ops::Add<i32> + std::ops::Mul<i32> + From<i32>>(input: &str) -> Vec<Token<T>> {
+pub fn tokenize<T: std::ops::Add<Output = T> + std::ops::Mul<Output = T> + From<i32> + Default>(input: &str) -> Vec<Token<T>> {
     let mut tokens = Vec::new();
     let mut iter = input.chars().peekable();
 
@@ -34,18 +34,18 @@ pub fn tokenize<T: std::ops::Add<i32> + std::ops::Mul<i32> + From<i32>>(input: &
                 iter.next();
             }
             '0'..='9' => {
-                let mut value: i32 = 0;
+                let mut value = T::default();
 
                 while let Some(&digit) = iter.peek() {
                     if let Some(d) = digit.to_digit(10) {
-                        value = value * 10 + d as i32;
+                        value = value * T::from(10) + T::from(d as i32);
                         iter.next();
                     } else {
                         break;
                     }
                 }
 
-                tokens.push(Token::Constant(T::from(value)));
+                tokens.push(Token::Constant(value));
             }
             '+' => {
                 tokens.push(Token::Plus);

@@ -30,7 +30,7 @@ impl BruteForce<i32> {
 
         for &variable_name in &variable_names {
             current_combination.insert(variable_name, 0);
-        };
+        }
 
         loop {
             combinations.push(current_combination.clone());
@@ -62,7 +62,6 @@ impl BruteForce<i32> {
 impl Solver<&str> for BruteForce<i32> {
     fn new(input: &str) -> Result<Self, String> {
         let tokens = tokenize(input);
-
         let mut parser = Parser::new(&tokens);
 
         match parser.parse_equation() {
