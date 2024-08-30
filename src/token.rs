@@ -1,3 +1,5 @@
+use std::{fmt::Debug, str::FromStr};
+
 // Token representing a part of the input expression
 #[derive(Debug, Clone, PartialEq)]
 pub enum Token<T> {
@@ -23,7 +25,10 @@ impl<T> Token<T> {
 }
 
 // Tokenize the input string
-pub fn tokenize<T: std::ops::Add<Output = T> + std::ops::Mul<Output = T> + From<i32> + Default>(input: &str) -> Vec<Token<T>> {
+pub fn tokenize<T: std::ops::Add<Output = T> + std::ops::Mul<Output = T> + FromStr + Default>(input: &str) -> Vec<Token<T>>
+where
+    <T as FromStr>::Err: Debug
+{
     let mut tokens = Vec::new();
     let mut iter = input.chars().peekable();
 
@@ -34,18 +39,21 @@ pub fn tokenize<T: std::ops::Add<Output = T> + std::ops::Mul<Output = T> + From<
                 iter.next();
             }
             '0'..='9' => {
-                let mut value = T::default();
+                let mut value = String::default();
 
-                while let Some(&digit) = iter.peek() {
-                    if let Some(d) = digit.to_digit(10) {
-                        value = value * T::from(10) + T::from(d as i32);
+                while let Some(&char) = iter.peek() {
+                    if let Some(_) = char.to_digit(10) {
+                        value.push(char);
+                        iter.next();
+                    } else if char == '.' {
+                        value.push(char);
                         iter.next();
                     } else {
                         break;
                     }
                 }
 
-                tokens.push(Token::Constant(value));
+                tokens.push(Token::Constant(T::from_str(&value).unwrap()));
             }
             '+' => {
                 tokens.push(Token::Plus);
