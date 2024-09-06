@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use crate::pow::Pow;
+
 #[derive(Debug)]
 pub enum Expression<T> {
     Variable(char),
@@ -8,10 +10,11 @@ pub enum Expression<T> {
     Subtraction(Box<Expression<T>>, Box<Expression<T>>),
     Multiplication(Box<Expression<T>>, Box<Expression<T>>),
     Division(Box<Expression<T>>, Box<Expression<T>>),
+    Exponentiation(Box<Expression<T>>, Box<Expression<T>>),
     // Add more operations as needed
 }
 
-impl<T: std::ops::Add<Output = T> + std::ops::Sub<Output = T> + std::ops::Mul<Output = T> + std::ops::Div<Output = T> + Default + Copy> Expression<T> {
+impl<T: std::ops::Add<Output = T> + std::ops::Sub<Output = T> + std::ops::Mul<Output = T> + std::ops::Div<Output = T> + Default + Copy + Pow<T>> Expression<T> {
     pub fn evaluate(&self, variable_values: &HashMap<char, T>) -> T {
         match self {
             Expression::Variable(c) => *variable_values.get(c).unwrap_or(&T::default()),
@@ -20,6 +23,7 @@ impl<T: std::ops::Add<Output = T> + std::ops::Sub<Output = T> + std::ops::Mul<Ou
             Expression::Subtraction(lhs, rhs) => lhs.evaluate(variable_values) - rhs.evaluate(variable_values),
             Expression::Multiplication(lhs, rhs) => lhs.evaluate(variable_values) * rhs.evaluate(variable_values),
             Expression::Division(lhs, rhs) => lhs.evaluate(variable_values) / rhs.evaluate(variable_values),
+            Expression::Exponentiation(lhs, rhs) => lhs.evaluate(variable_values).powt(rhs.evaluate(variable_values)),
         }
     }
 }

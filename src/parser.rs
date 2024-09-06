@@ -87,26 +87,44 @@ impl<'a, T: std::cmp::PartialEq + Clone> Parser<'a, T> {
         match self.peek().cloned() {
             Some(Token::Variable(c)) => {
                 self.consume(); // Consume the variable token
-                if let Some(Token::Constant(value)) = self.peek().cloned() {
-                    self.consume(); // Consume the constant token
-                    Some(Expression::Multiplication(
-                        Box::new(Expression::Variable(c)),
-                        Box::new(Expression::Constant(value)),
-                    ))
-                } else {
-                    Some(Expression::Variable(c))
+                match self.peek().cloned() {
+                    Some(Token::Constant(value)) => {
+                        self.consume(); // Consume the constant token
+                        Some(Expression::Multiplication(
+                            Box::new(Expression::Variable(c)),
+                            Box::new(Expression::Constant(value)),
+                        ))
+                    }
+                    Some(Token::Caret) => {
+                        self.consume(); // Consume the caret token
+                        let right = self.parse_primary().expect("Uhh");
+                        Some(Expression::Exponentiation(
+                            Box::new(Expression::Variable(c)),
+                            Box::new(right),
+                        ))
+                    }
+                    _ => Some(Expression::Variable(c)),
                 }
             }
             Some(Token::Constant(value)) => {
                 self.consume(); // Consume the constant token
-                if let Some(Token::Variable(c)) = self.peek().cloned() {
-                    self.consume(); // Consume the variable token
-                    Some(Expression::Multiplication(
-                        Box::new(Expression::Constant(value)),
-                        Box::new(Expression::Variable(c)),
-                    ))
-                } else {
-                    Some(Expression::Constant(value))
+                match self.peek().cloned() {
+                    Some(Token::Variable(c)) => {
+                        self.consume(); // Consume the variable token
+                        Some(Expression::Multiplication(
+                            Box::new(Expression::Constant(value)),
+                            Box::new(Expression::Variable(c)),
+                        ))
+                    }
+                    Some(Token::Caret) => {
+                        self.consume(); // Consume the caret token
+                        let right = self.parse_primary().expect("Uhh");
+                        Some(Expression::Exponentiation(
+                            Box::new(Expression::Constant(value)),
+                            Box::new(right),
+                        ))
+                    }
+                    _ => Some(Expression::Constant(value))
                 }
             }
             Some(Token::OpenParenthesis) => {

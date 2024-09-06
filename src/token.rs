@@ -9,6 +9,7 @@ pub enum Token<T> {
     Minus,
     Asterisk,
     Slash,
+    Caret,
     OpenParenthesis,
     CloseParenthesis,
     Equal,
@@ -69,6 +70,10 @@ where
             }
             '/' => {
                 tokens.push(Token::Slash);
+                iter.next();
+            }
+            '^' => {
+                tokens.push(Token::Caret);
                 iter.next();
             }
             '(' => {
